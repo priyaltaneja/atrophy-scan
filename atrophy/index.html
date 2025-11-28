@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S.H.I.A - Structured Health Intelligence for Alzheimer's</title>
+  <meta name="description" content="Medical-grade brain volumetric analysis for early detection of Alzheimer's disease and neurodegeneration. AI-powered MRI analysis.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <h1 class="logo">S.H.I.A</h1>
+        <span class="badge">Medical-Grade AI</span>
+      </div>
+      <div class="header-right">
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <span class="progress-text" id="progressText">Ready</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Left Panel: Viewer -->
+      <section class="viewer-section">
+        <div class="viewer-header">
+          <span class="viewer-title">MRI Viewer</span>
+          <div class="viewer-controls">
+            <label class="control-label">
+              <input type="checkbox" id="clipCheck">
+              <span>Clip Plane</span>
+            </label>
+            <label class="control-label">
+              Overlay
+              <input type="range" min="0" max="100" value="50" id="opacitySlider" class="slider">
+            </label>
+          </div>
+        </div>
+        <div class="canvas-container">
+          <canvas id="gl1"></canvas>
+          <div class="drop-zone" id="dropZone">
+            <div class="drop-content">
+              <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <p class="drop-text">Drag & Drop NIfTI file</p>
+              <p class="drop-subtext">or click to browse</p>
+              <input type="file" id="fileInput" accept=".nii,.nii.gz,.gz" hidden>
+            </div>
+          </div>
+        </div>
+        <div class="viewer-footer">
+          <span id="locationInfo">Load a brain MRI to begin analysis</span>
+        </div>
+      </section>
+
+      <!-- Right Panel: Analysis -->
+      <aside class="analysis-panel">
+        <div class="panel-header">
+          <h2>Atrophy Analysis</h2>
+          <button class="btn btn-primary" id="analyzeBtn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            Analyze
+          </button>
+        </div>
+
+        <!-- Patient Info -->
+        <div class="card" id="patientCard">
+          <h3 class="card-title">Patient Information</h3>
+          <div class="patient-form">
+            <div class="form-group">
+              <label>Age</label>
+              <input type="number" id="patientAge" placeholder="Years" min="18" max="100" value="65">
+            </div>
+            <div class="form-group">
+              <label>Sex</label>
+              <select id="patientSex">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="card" id="summaryCard" style="display:none;">
+          <h3 class="card-title">Analysis Summary</h3>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="summary-label">Total Brain Volume</span>
+              <span class="summary-value" id="totalVolume">--</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Percentile for Age</span>
+              <span class="summary-value" id="percentile">--</span>
+            </div>
+            <div class="summary-item highlight">
+              <span class="summary-label">Atrophy Risk</span>
+              <span class="summary-value" id="atrophyRisk">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regional Analysis -->
+        <div class="card" id="regionalCard" style="display:none;">
+          <h3 class="card-title">
+            Regional Analysis
+            <span class="card-subtitle">Z-scores relative to age-matched norms</span>
+          </h3>
+          <div class="regions-container" id="regionsContainer">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Findings -->
+        <div class="card" id="findingsCard" style="display:none;">
+          <h3 class="card-title">Key Findings</h3>
+          <div class="findings-list" id="findingsList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Export -->
+        <div class="card" id="exportCard" style="display:none;">
+          <h3 class="card-title">Export</h3>
+          <div class="export-buttons">
+            <button class="btn btn-secondary" id="exportPdfBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+              Export Report
+            </button>
+            <button class="btn btn-secondary" id="exportNiftiBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Save Segmentation
+            </button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

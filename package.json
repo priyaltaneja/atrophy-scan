@@ -1,14 +1,13 @@
 {
-  "name": "brainchop",
+  "name": "shia",
+  "description": "S.H.I.A - Structured Health Intelligence for Alzheimer's: Medical-grade brain volumetric analysis for early detection of neurodegeneration",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "test": "npx playwright test",
-    "pretest": "vite build"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@niivue/niivue": "^0.62.0",
@@ -16,10 +15,19 @@
     "gl-matrix": "^3.4.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.44.0",
-    "@types/node": "^20.12.12",
     "vite": "^7.0.5",
     "vite-plugin-compression": "^0.5.1"
   },
-  "homepage": "https://neuroneural.github.io/brainchop/"
+  "keywords": [
+    "alzheimer",
+    "brain",
+    "mri",
+    "volumetric",
+    "neuroimaging",
+    "medical",
+    "ai",
+    "tensorflow"
+  ],
+  "author": "Built on BrainChop by neuroneural",
+  "license": "MIT"
 }

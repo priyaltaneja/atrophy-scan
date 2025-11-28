@@ -1,0 +1,864 @@
+/* ============================================
+   BRAIN ATROPHY ANALYSIS - STYLES
+   Modern Clinical Interface
+   ============================================ */
+
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-card: #1a1a24;
+  --bg-hover: #22222e;
+
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  --accent-primary: #6366f1;
+  --accent-primary-hover: #818cf8;
+  --accent-secondary: #3b82f6;
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #06b6d4;
+
+  --border: #27272a;
+  --border-light: #3f3f46;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.5);
+
+  --transition: 150ms ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 9999px;
+  color: white;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-bar {
+  width: 200px;
+  height: 6px;
+  background: var(--bg-card);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--success));
+  transition: width 300ms ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-width: 100px;
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Viewer Section */
+.viewer-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border);
+}
+
+.viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.viewer-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.viewer-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.control-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.control-label input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent-primary);
+}
+
+.slider {
+  width: 80px;
+  height: 4px;
+  accent-color: var(--accent-primary);
+}
+
+.canvas-container {
+  flex: 1;
+  position: relative;
+  background: #000;
+}
+
+.canvas-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.drop-zone {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.8);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.drop-zone:hover {
+  background: rgba(0,0,0,0.7);
+}
+
+.drop-zone.hidden {
+  display: none;
+}
+
+.drop-zone.drag-over {
+  background: rgba(99, 102, 241, 0.2);
+  border: 2px dashed var(--accent-primary);
+}
+
+.drop-content {
+  text-align: center;
+}
+
+.drop-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.drop-text {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.drop-subtext {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.viewer-footer {
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   ANALYSIS PANEL
+   ============================================ */
+
+.analysis-panel {
+  width: 420px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  overflow-y: auto;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-secondary);
+  z-index: 10;
+}
+
+.panel-header h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Cards */
+.card {
+  margin: 16px;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* Patient Form */
+.patient-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group select {
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+/* Summary Grid */
+.summary-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+}
+
+.summary-item.highlight {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(59, 130, 246, 0.15));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.summary-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.summary-value {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Regions */
+.regions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.region-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+
+.region-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.region-volume {
+  color: var(--text-secondary);
+  text-align: right;
+  min-width: 55px;
+}
+
+.region-percentile {
+  color: var(--text-muted);
+  text-align: right;
+  min-width: 35px;
+  font-size: 11px;
+}
+
+.region-zscore {
+  min-width: 65px;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 11px;
+}
+
+/* Z-score color classes - applied dynamically via inline styles for precise control */
+.region-zscore.normal { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+.region-zscore.low-normal { background: rgba(132, 204, 22, 0.2); color: #84cc16; }
+.region-zscore.mild { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+.region-zscore.moderate { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+.region-zscore.severe { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+/* ============================================
+   MEDICAL-GRADE BIOMARKERS SECTION
+   ============================================ */
+
+.biomarker-section {
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+}
+
+.biomarker-section:last-child {
+  margin-bottom: 0;
+}
+
+.biomarker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.biomarker-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.biomarker-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.biomarker-details {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.biomarker-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.biomarker-row:last-of-type {
+  border-bottom: none;
+}
+
+.biomarker-description {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: var(--radius-sm);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* Clinical Pattern Recognition */
+.patterns-section {
+  border: 1px solid var(--accent-primary);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.patterns-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pattern-item {
+  padding: 10px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent-primary);
+}
+
+.pattern-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.pattern-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pattern-confidence {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.pattern-confidence.high {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.pattern-confidence.moderate {
+  background: rgba(249, 115, 22, 0.2);
+  color: #f97316;
+}
+
+.pattern-confidence.low-moderate {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
+}
+
+.pattern-indicators {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.pattern-recommendation {
+  font-size: 11px;
+  padding: 6px;
+  background: rgba(6, 182, 212, 0.1);
+  border-radius: var(--radius-sm);
+  color: var(--info);
+}
+
+/* Findings */
+.findings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.finding-item {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.finding-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.finding-icon.warning { color: var(--warning); }
+.finding-icon.danger { color: var(--danger); }
+.finding-icon.info { color: var(--info); }
+.finding-icon.success { color: var(--success); }
+
+/* Export */
+.export-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* ============================================
+   STANDARDIZED ATROPHY SCALES
+   ============================================ */
+
+.scales-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.scale-item {
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+}
+
+.scale-item.abnormal {
+  border-color: var(--danger);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.scale-item.normal {
+  border-color: var(--success);
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.scale-item.borderline {
+  border-color: var(--warning);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.scale-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.scale-value {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.scale-value.normal { color: var(--success); }
+.scale-value.mild { color: #84cc16; }
+.scale-value.moderate { color: var(--warning); }
+.scale-value.severe { color: #f97316; }
+.scale-value.critical { color: var(--danger); }
+
+.scale-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.scale-status {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.scale-status.abnormal {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.scale-status.normal {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--success);
+}
+
+.scale-status.borderline {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
+}
+
+.scale-ref {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.scales-summary {
+  padding: 10px 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.confidence-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.confidence-badge.high {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.confidence-badge.moderate {
+  background: rgba(249, 115, 22, 0.2);
+  color: #f97316;
+}
+
+.confidence-badge.low {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--warning);
+}
+
+.confidence-badge.normal {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--success);
+}
+
+/* Evans Index special display */
+.evans-index-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.evans-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-card);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.evans-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.evans-marker {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 16px;
+  background: var(--text-muted);
+}
+
+.evans-marker.threshold-normal {
+  left: 71.4%; /* 0.25/0.35 */
+}
+
+.evans-marker.threshold-abnormal {
+  left: 85.7%; /* 0.30/0.35 */
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-primary {
+  background: var(--accent-primary);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-primary-hover);
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--border-light);
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.analyzing .progress-fill {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .main-content {
+    flex-direction: column;
+  }
+
+  .viewer-section {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    min-height: 50vh;
+  }
+
+  .analysis-panel {
+    width: 100%;
+  }
+}

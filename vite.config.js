@@ -1,15 +1,16 @@
 import { defineConfig } from 'vite'
+import { resolve } from 'path'
 import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig({
-  root: '.',
-  base: '/', // Root path for custom domain brainchop.org
+  root: './atrophy',
+  base: '/',
   plugins: [
     // Generate gzip compressed files
     viteCompression({
       algorithm: 'gzip',
       ext: '.gz',
-      threshold: 1024, // Only compress files larger than 1KB
+      threshold: 1024,
       deleteOriginFile: false
     }),
     // Generate brotli compressed files (better compression than gzip)
@@ -21,7 +22,7 @@ export default defineConfig({
     })
   ],
   server: {
-    open: 'index.html'
+    open: true
   },
   preview: {
     port: 8088
@@ -29,7 +30,9 @@ export default defineConfig({
   build: {
     target: 'es2015',
     minify: 'esbuild',
-    chunkSizeWarningLimit: 2000, // Increase limit since medical imaging libs are naturally large
+    outDir: '../dist',
+    emptyOutDir: true,
+    chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -45,7 +48,7 @@ export default defineConfig({
           if (id.includes('gl-matrix')) {
             return 'vendor-math';
           }
-          // Compression libraries (loaded dynamically when needed)
+          // Compression libraries
           if (id.includes('blosc') || id.includes('lz4') || id.includes('zstd')) {
             return 'vendor-compression';
           }
@@ -58,7 +61,6 @@ export default defineConfig({
     }
   },
   esbuild: {
-    treeShaking: true,
-    drop: ['console', 'debugger']
+    treeShaking: true
   }
 })
