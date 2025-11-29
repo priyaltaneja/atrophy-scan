@@ -33,7 +33,7 @@ import { isChrome } from "../brainchop-diagnostics.js";
 // Set your HuggingFace Space URL below after deployment
 // ============================================
 const USE_SERVER = false;  // Toggle this to enable server-side inference
-const SERVER_URL = "https://YOUR-USERNAME-shia-brain.hf.space";  // Update after deploying
+const SERVER_URL = "https://aryagm-shia-brain.hf.space";  // Update after deploying
 
 /**
  * Run inference on the server (HuggingFace Space with GPU)

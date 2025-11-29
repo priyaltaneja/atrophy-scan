@@ -2,6 +2,5 @@ fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.6
 tensorflow==2.15.0
-tensorflowjs==4.15.0
 nibabel==5.2.0
 numpy==1.26.2

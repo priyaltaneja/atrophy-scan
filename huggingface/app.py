@@ -25,31 +25,41 @@ app.add_middleware(
 model = None
 MODEL_PATH = "model18cls"
 
-def load_tfjs_model(model_path):
-    """
-    Load a TensorFlow.js LayersModel from model.json + weight shards.
-    Converts it to a Keras model for inference.
-    """
-    import tensorflowjs as tfjs
-
-    # Load the tfjs model and convert to Keras
-    model = tfjs.converters.load_keras_model(os.path.join(model_path, "model.json"))
-    return model
-
 def load_model():
-    """Load TensorFlow model on startup"""
+    """
+    Load TensorFlow model on startup.
+    Supports H5, SavedModel, or Keras formats.
+
+    NOTE: Convert tfjs models first using convert_model.py
+    """
     global model
     if model is None:
         print(f"Loading model from {MODEL_PATH}...")
 
-        # Check if it's a tfjs model (has model.json) or SavedModel
-        model_json_path = os.path.join(MODEL_PATH, "model.json")
-        if os.path.exists(model_json_path):
-            print("Detected TensorFlow.js format, converting...")
-            model = load_tfjs_model(MODEL_PATH)
-        else:
-            print("Loading as SavedModel format...")
+        # Check for different model formats
+        h5_path = os.path.join(MODEL_PATH, "model.h5")
+        keras_path = os.path.join(MODEL_PATH, "model.keras")
+        saved_model_dir = os.path.join(MODEL_PATH, "saved_model")
+
+        if os.path.exists(h5_path):
+            print("Loading H5 format...")
+            model = tf.keras.models.load_model(h5_path)
+        elif os.path.exists(keras_path):
+            print("Loading Keras format...")
+            model = tf.keras.models.load_model(keras_path)
+        elif os.path.exists(saved_model_dir):
+            print("Loading SavedModel format...")
+            model = tf.keras.models.load_model(saved_model_dir)
+        elif os.path.exists(MODEL_PATH) and os.path.isdir(MODEL_PATH):
+            # Try loading directory as SavedModel
+            print("Loading as SavedModel directory...")
             model = tf.keras.models.load_model(MODEL_PATH)
+        else:
+            raise FileNotFoundError(
+                f"No model found in {MODEL_PATH}. "
+                "Please convert the tfjs model first using: "
+                "python convert_model.py ../public/models/model18cls ./model18cls"
+            )
 
         print("Model loaded successfully!")
         print(f"Input shape: {model.input_shape}")
