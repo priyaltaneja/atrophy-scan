@@ -66,17 +66,29 @@ def load_model():
         print(f"Output shape: {model.output_shape}")
     return model
 
-def parse_nifti(file_bytes: bytes):
+def parse_nifti(file_bytes: bytes, filename: str = "temp.nii"):
     """Parse NIfTI file from bytes"""
-    # Check if gzipped
-    if file_bytes[:2] == b'\x1f\x8b':
-        file_bytes = gzip.decompress(file_bytes)
+    import tempfile
 
-    # Use nibabel with BytesIO
-    fh = nib.FileHolder(fileobj=io.BytesIO(file_bytes))
-    img = nib.Nifti1Image.from_file_map({'header': fh, 'image': fh})
+    # Determine file extension for nibabel
+    is_gzipped = file_bytes[:2] == b'\x1f\x8b' or filename.endswith('.gz')
+    suffix = '.nii.gz' if is_gzipped else '.nii'
 
-    return img.get_fdata(), img.header
+    # Write to temp file and load with nibabel
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(file_bytes)
+        tmp_path = tmp.name
+
+    try:
+        img = nib.load(tmp_path)
+        data = img.get_fdata()
+        header = img.header
+    finally:
+        # Clean up temp file
+        import os
+        os.unlink(tmp_path)
+
+    return data, header
 
 def min_max_normalize(data):
     """Normalize data to 0-1 range"""
@@ -159,7 +171,7 @@ async def segment(file: UploadFile = File(...)):
 
         # Parse NIfTI
         parse_start = time.time()
-        data, header = parse_nifti(file_bytes)
+        data, header = parse_nifti(file_bytes, file.filename)
         parse_time = time.time() - parse_start
         print(f"Volume shape: {data.shape}, Parse time: {parse_time:.2f}s")
 
@@ -217,7 +229,7 @@ async def segment_compact(file: UploadFile = File(...)):
             raise HTTPException(400, "File must be a NIfTI file (.nii or .nii.gz)")
 
         file_bytes = await file.read()
-        data, header = parse_nifti(file_bytes)
+        data, header = parse_nifti(file_bytes, file.filename)
         processed = preprocess_volume(data)
         segmentation = run_inference(processed)
 
