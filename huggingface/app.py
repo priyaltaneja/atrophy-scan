@@ -98,12 +98,67 @@ def min_max_normalize(data):
         return data
     return (data - data_min) / (data_max - data_min)
 
-def preprocess_volume(data):
+
+def conform_volume(data, header, target_shape=(256, 256, 256), target_voxel_size=1.0):
+    """
+    Conform MRI volume to standard dimensions (like FreeSurfer's mri_convert --conform).
+    Resamples to 1mm isotropic voxels and 256^3 dimensions.
+    """
+    from scipy.ndimage import zoom
+
+    # Get current voxel sizes from header
+    try:
+        voxel_sizes = header.get_zooms()[:3]
+    except:
+        voxel_sizes = (1.0, 1.0, 1.0)
+
+    print(f"Original voxel sizes: {voxel_sizes}")
+    print(f"Original shape: {data.shape}")
+
+    # Calculate zoom factors to get to target voxel size, then to target shape
+    # Step 1: Resample to target voxel size (1mm isotropic)
+    zoom_to_1mm = [vs / target_voxel_size for vs in voxel_sizes]
+
+    # Resample to 1mm isotropic
+    data_1mm = zoom(data, zoom_to_1mm, order=1)  # order=1 = linear interpolation
+    print(f"After 1mm resample shape: {data_1mm.shape}")
+
+    # Step 2: Pad or crop to target shape (256^3)
+    current_shape = data_1mm.shape
+    result = np.zeros(target_shape, dtype=data_1mm.dtype)
+
+    # Calculate start indices for centering
+    starts_src = [max(0, (cs - ts) // 2) for cs, ts in zip(current_shape, target_shape)]
+    starts_dst = [max(0, (ts - cs) // 2) for cs, ts in zip(current_shape, target_shape)]
+
+    # Calculate the size of the region to copy
+    sizes = [min(cs, ts) for cs, ts in zip(current_shape, target_shape)]
+
+    # Adjust for offset
+    sizes = [min(s, ts - sd, cs - ss) for s, ts, sd, cs, ss in
+             zip(sizes, target_shape, starts_dst, current_shape, starts_src)]
+
+    # Copy data
+    result[
+        starts_dst[0]:starts_dst[0]+sizes[0],
+        starts_dst[1]:starts_dst[1]+sizes[1],
+        starts_dst[2]:starts_dst[2]+sizes[2]
+    ] = data_1mm[
+        starts_src[0]:starts_src[0]+sizes[0],
+        starts_src[1]:starts_src[1]+sizes[1],
+        starts_src[2]:starts_src[2]+sizes[2]
+    ]
+
+    print(f"Conformed shape: {result.shape}")
+    return result
+
+def preprocess_volume(data, header):
     """
     Preprocess MRI volume for model input.
-    Returns preprocessed data and info needed to unpad output.
+    Conforms to 256^3 at 1mm isotropic, normalizes, and prepares for model.
     """
-    original_shape = data.shape
+    # Conform to 256^3 at 1mm isotropic (like FreeSurfer)
+    data = conform_volume(data, header)
 
     # Normalize
     data = min_max_normalize(data)
@@ -111,62 +166,23 @@ def preprocess_volume(data):
     # Ensure float32
     data = data.astype(np.float32)
 
-    # Transpose to match model expectations
+    # Transpose to match model expectations (the model was trained with this orientation)
     data = np.transpose(data, (2, 1, 0))
-    transposed_shape = data.shape
-
-    # Pad to 256x256x256 if needed (model requires fixed input size)
-    target_shape = (256, 256, 256)
-    current_shape = data.shape
-    pad_info = None
-
-    if current_shape != target_shape:
-        print(f"Padding volume from {current_shape} to {target_shape}")
-        padded = np.zeros(target_shape, dtype=np.float32)
-
-        # Calculate padding offsets (center the volume)
-        offsets = [(t - c) // 2 for t, c in zip(target_shape, current_shape)]
-
-        # Handle cases where input is larger than target (crop instead)
-        slices_src = []
-        slices_dst = []
-        for i in range(3):
-            if current_shape[i] <= target_shape[i]:
-                # Pad: source is full, destination is offset
-                slices_src.append(slice(0, current_shape[i]))
-                slices_dst.append(slice(offsets[i], offsets[i] + current_shape[i]))
-            else:
-                # Crop: source is cropped, destination is full
-                start = (current_shape[i] - target_shape[i]) // 2
-                slices_src.append(slice(start, start + target_shape[i]))
-                slices_dst.append(slice(0, target_shape[i]))
-
-        padded[slices_dst[0], slices_dst[1], slices_dst[2]] = data[slices_src[0], slices_src[1], slices_src[2]]
-        data = padded
-        pad_info = {
-            'original_transposed_shape': transposed_shape,
-            'slices_dst': slices_dst
-        }
 
     # Add batch and channel dimensions
     data = np.expand_dims(data, axis=0)  # batch
     data = np.expand_dims(data, axis=-1)  # channel
 
-    return data, pad_info, original_shape
+    return data
 
 
-def postprocess_segmentation(segmentation, pad_info, original_shape):
+def postprocess_segmentation(segmentation):
     """
-    Remove padding from segmentation output and transpose back to original orientation.
+    Transpose segmentation back to standard orientation.
+    Output is 256^3 (conformed space).
     """
-    # If we padded, extract the original region
-    if pad_info is not None:
-        slices = pad_info['slices_dst']
-        segmentation = segmentation[slices[0], slices[1], slices[2]]
-
-    # Transpose back to original orientation
+    # Transpose back
     segmentation = np.transpose(segmentation, (2, 1, 0))
-
     return segmentation
 
 def run_inference(data):
@@ -228,16 +244,16 @@ async def segment(file: UploadFile = File(...)):
         parse_time = time.time() - parse_start
         print(f"Volume shape: {data.shape}, Parse time: {parse_time:.2f}s")
 
-        # Preprocess
+        # Preprocess (conform to 256^3 + normalize)
         preprocess_start = time.time()
-        processed, pad_info, original_shape = preprocess_volume(data)
+        processed = preprocess_volume(data, header)
         preprocess_time = time.time() - preprocess_start
         print(f"Preprocessed shape: {processed.shape}, Time: {preprocess_time:.2f}s")
 
         # Run inference
         inference_start = time.time()
         segmentation = run_inference(processed)
-        segmentation = postprocess_segmentation(segmentation, pad_info, original_shape)
+        segmentation = postprocess_segmentation(segmentation)
         inference_time = time.time() - inference_start
         print(f"Inference time: {inference_time:.2f}s")
 
@@ -290,13 +306,13 @@ async def segment_compact(file: UploadFile = File(...)):
         data, header = parse_nifti(file_bytes, file.filename)
         print(f"Parsed volume shape: {data.shape}")
 
-        processed, pad_info, original_shape = preprocess_volume(data)
+        processed = preprocess_volume(data, header)
         print(f"Preprocessed shape: {processed.shape}")
 
         segmentation = run_inference(processed)
         print(f"Raw segmentation shape: {segmentation.shape}")
 
-        segmentation = postprocess_segmentation(segmentation, pad_info, original_shape)
+        segmentation = postprocess_segmentation(segmentation)
         print(f"Final segmentation shape: {segmentation.shape}")
 
         total_time = time.time() - start_time
